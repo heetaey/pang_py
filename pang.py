@@ -1,11 +1,13 @@
+import os
+
 import pygame
 
 # initialize the pang_game
 pygame.init()
 
 # set up screen size
-screen_width = 480
-screen_height = 640
+screen_width = 640
+screen_height = 480
 screen = pygame.display.set_mode((screen_width, screen_height))
 
 # set up startup screen
@@ -14,16 +16,25 @@ pygame.display.set_caption("Pang Game")
 # FPS set
 clock = pygame.time.Clock()
 
-background = pygame.image.load("/Users/heetaeyang/Documents/Project/pang_py/resources/background"
-                               ".png")
+current_path = os.path.dirname(__file__)
+image_path = os.path.join(current_path, "resources")
+
+# set background
+background = pygame.image.load(os.path.join(image_path, "background.png"))
+
+# set stage
+stage = pygame.image.load(os.path.join(image_path, "stage.png"))
+stage_size = stage.get_rect().size
+stage_height = stage_size[1]
 
 # character sprites
-character = pygame.image.load("/Users/heetaeyang/Documents/Project/pang_py/resources/character.png")
+character = pygame.image.load(os.path.join(image_path, "character.png"))
 character_size = character.get_rect().size
 character_width = character_size[0]
 character_height = character_size[1]
 character_xpos = (screen_width / 2) - (character_width / 2)
-character_ypos = screen_height - character_height
+character_ypos = screen_height - character_height - stage_height
+
 
 # axis
 x = 0
@@ -33,7 +44,7 @@ y = 0
 character_speed = .6
 
 # enemy character
-enemy = pygame.image.load("/Users/heetaeyang/Documents/Project/pang_py/resources/enemy.png")
+enemy = pygame.image.load(os.path.join(image_path, "balloon1.png"))
 enemy_size = enemy.get_rect().size
 enemy_width = enemy_size[0]
 enemy_height = enemy_size[1]
@@ -53,7 +64,7 @@ start_time = pygame.time.get_ticks()
 running = True
 while running:
     # FPS
-    dt = clock.tick(60)
+    dt = clock.tick(30)
     # print("FPS: ", str(clock.get_fps()))
 
     for event in pygame.event.get():
@@ -108,6 +119,7 @@ while running:
 
     # update sprites
     screen.blit(background, (0, 0))
+    screen.blit(stage, (0, screen_height - stage_height))
     screen.blit(character, (character_xpos, character_ypos))
     screen.blit(enemy, (enemy_xpos, enemy_ypos))
 
