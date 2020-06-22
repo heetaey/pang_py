@@ -17,7 +17,7 @@ clock = pygame.time.Clock()
 background = pygame.image.load("/Users/heetaeyang/Documents/Project/pang_py/resources/background"
                                ".png")
 
-# load sprites
+# character sprites
 character = pygame.image.load("/Users/heetaeyang/Documents/Project/pang_py/resources/character.png")
 character_size = character.get_rect().size
 character_width = character_size[0]
@@ -31,6 +31,15 @@ y = 0
 
 # character movement speed
 character_speed = .6
+
+# enemy character
+enemy = pygame.image.load("/Users/heetaeyang/Documents/Project/pang_py/resources/enemy.png")
+enemy_size = enemy.get_rect().size
+enemy_width = enemy_size[0]
+enemy_height = enemy_size[1]
+enemy_xpos = (screen_width / 2) - (enemy_width / 2)
+enemy_ypos = (screen_height / 2) - (enemy_height / 2)
+
 
 # run
 running = True
@@ -63,20 +72,36 @@ while running:
     character_xpos += x * dt
     character_ypos += y * dt
 
-    # limit the character not to surpass the program size
+    # limit 'x-axis' of the character not to surpass the program size
     if character_xpos < 0:
         character_xpos = 0
     elif character_xpos > screen_width - character_width:
         character_xpos = screen_width - character_width
 
+    # limit 'y-axis' of the character not to surpass the program size
     if character_ypos < 0:
         character_ypos = 0
     elif character_ypos > screen_height - character_height:
         character_ypos = screen_height - character_height
 
+    # character contact w/ enemy
+    character_rect = character.get_rect()
+    character_rect.left = character_xpos
+    character_rect.top = character_ypos
+
+    enemy_rect = enemy.get_rect()
+    enemy_rect.left = enemy_xpos
+    enemy_rect.top = enemy_ypos
+
+    # checking the contact
+    if character_rect.colliderect(enemy_rect):
+        print("HIT!")
+        running = False
+
     # update sprites
     screen.blit(background, (0, 0))
     screen.blit(character, (character_xpos, character_ypos))
+    screen.blit(enemy, (enemy_xpos, enemy_ypos))
     pygame.display.update()
 
 pygame.quit()
