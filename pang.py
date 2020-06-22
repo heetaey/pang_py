@@ -40,8 +40,16 @@ enemy_height = enemy_size[1]
 enemy_xpos = (screen_width / 2) - (enemy_width / 2)
 enemy_ypos = (screen_height / 2) - (enemy_height / 2)
 
+# Font for in-game
+game_font = pygame.font.Font(None, 40)
 
-# run
+# Game timer
+total_time = 10
+
+# Game starter
+start_time = pygame.time.get_ticks()
+
+# running environment
 running = True
 while running:
     # FPS
@@ -102,6 +110,18 @@ while running:
     screen.blit(background, (0, 0))
     screen.blit(character, (character_xpos, character_ypos))
     screen.blit(enemy, (enemy_xpos, enemy_ypos))
+
+    # set timer / time elapsed
+    elapsed_time = (pygame.time.get_ticks() - start_time) / 1000
+    timer = game_font.render(str(int(total_time - elapsed_time)), True, (255, 255, 255))
+
+    screen.blit(timer, (10, 10))
+
+    if total_time - elapsed_time <= 0:
+        print("Time Out!")
+        running = False
+
     pygame.display.update()
 
+pygame.time.delay(2000)
 pygame.quit()
