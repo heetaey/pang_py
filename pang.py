@@ -1,5 +1,4 @@
 import os
-
 import pygame
 
 # initialize the pang_game
@@ -27,111 +26,76 @@ stage = pygame.image.load(os.path.join(image_path, "stage.png"))
 stage_size = stage.get_rect().size
 stage_height = stage_size[1]
 
-# character sprites
-character = pygame.image.load(os.path.join(image_path, "character.png"))
-character_size = character.get_rect().size
-character_width = character_size[0]
-character_height = character_size[1]
-character_xpos = (screen_width / 2) - (character_width / 2)
-character_ypos = screen_height - character_height - stage_height
-
+# player sprites
+player = pygame.image.load(os.path.join(image_path, "character.png"))
+player_size = player.get_rect().size
+player_width = player_size[0]
+player_height = player_size[1]
+player_xpos = (screen_width / 2) - (player_width / 2)
+player_ypos = screen_height - player_height - stage_height
 
 # axis
-x = 0
-y = 0
+player_to_x_LEFT = 0
+player_to_x_RIGHT = 0
 
-# character movement speed
-character_speed = .6
+# player movement speed
+player_speed = 10
 
-# enemy character
-enemy = pygame.image.load(os.path.join(image_path, "balloon1.png"))
-enemy_size = enemy.get_rect().size
-enemy_width = enemy_size[0]
-enemy_height = enemy_size[1]
-enemy_xpos = (screen_width / 2) - (enemy_width / 2)
-enemy_ypos = (screen_height / 2) - (enemy_height / 2)
+# player weapon
+weapon = pygame.image.load(os.path.join(image_path, "weapon.png"))
+weapon_size = weapon.get_rect().size
+weapon_width = weapon_size[0]
 
-# Font for in-game
-game_font = pygame.font.Font(None, 40)
+weapons = []
 
-# Game timer
-total_time = 10
-
-# Game starter
-start_time = pygame.time.get_ticks()
+weapon_speed = 10
 
 # running environment
 running = True
 while running:
-    # FPS
-    dt = clock.tick(30)
-    # print("FPS: ", str(clock.get_fps()))
-
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
 
-        if event.type == pygame.KEYDOWN:
+        if event.type in [pygame.KEYDOWN]:
             if event.key == pygame.K_LEFT:
-                x -= character_speed
+                player_to_x_LEFT -= player_speed
             elif event.key == pygame.K_RIGHT:
-                x += character_speed
-            elif event.key == pygame.K_UP:
-                y -= character_speed
-            elif event.key == pygame.K_DOWN:
-                y += character_speed
+                player_to_x_RIGHT += player_speed
+            elif event.key == pygame.K_SPACE:
+                weapon_xpos = player_xpos + (weapon_width / 2)
+                weapon_ypos = player_ypos
+                weapons.append([weapon_xpos, weapon_ypos])
 
-        if event.type == pygame.KEYUP:
-            if event.key == pygame.K_LEFT or event.key == pygame.K_RIGHT:
-                x = 0
-            elif event.key == pygame.K_UP or event.key == pygame.K_DOWN:
-                y = 0
+        if event.type in [pygame.KEYUP]:
+            if event.key == pygame.K_LEFT:
+                player_to_x_LEFT = 0
+            elif event.key == pygame.K_RIGHT:
+                player_to_x_RIGHT = 0
 
-    # character position
-    character_xpos += x * dt
-    character_ypos += y * dt
+    # player position
+    player_xpos += player_to_x_LEFT + player_to_x_RIGHT
 
-    # limit 'x-axis' of the character not to surpass the program size
-    if character_xpos < 0:
-        character_xpos = 0
-    elif character_xpos > screen_width - character_width:
-        character_xpos = screen_width - character_width
+    # limit 'x-axis' of the player not to surpass the program size
+    if player_xpos < 0:
+        player_xpos = 0
+    elif player_xpos > screen_width - player_width:
+        player_xpos = screen_width - player_width
 
-    # limit 'y-axis' of the character not to surpass the program size
-    if character_ypos < 0:
-        character_ypos = 0
-    elif character_ypos > screen_height - character_height:
-        character_ypos = screen_height - character_height
+    # weapon position
+    # w[0] w[1]: only w[1] value will change as it always move up
+    # 100, 200 -> 180, 160, 140, 120...
+    weapons = [[w[0], w[1] - weapon_speed] for w in weapons]
 
-    # character contact w/ enemy
-    character_rect = character.get_rect()
-    character_rect.left = character_xpos
-    character_rect.top = character_ypos
-
-    enemy_rect = enemy.get_rect()
-    enemy_rect.left = enemy_xpos
-    enemy_rect.top = enemy_ypos
-
-    # checking the contact
-    if character_rect.colliderect(enemy_rect):
-        print("HIT!")
-        running = False
+    # when it hits the top, it will disappear
+    weapons = [[w[0], w[1]] for w in weapons if w[1] > 0]
 
     # update sprites
     screen.blit(background, (0, 0))
+    for weapon_xpos, weapon_ypos in weapons:
+        screen.blit(weapon, (weapon_xpos, weapon_ypos))
     screen.blit(stage, (0, screen_height - stage_height))
-    screen.blit(character, (character_xpos, character_ypos))
-    screen.blit(enemy, (enemy_xpos, enemy_ypos))
-
-    # set timer / time elapsed
-    elapsed_time = (pygame.time.get_ticks() - start_time) / 1000
-    timer = game_font.render(str(int(total_time - elapsed_time)), True, (255, 255, 255))
-
-    screen.blit(timer, (10, 10))
-
-    if total_time - elapsed_time <= 0:
-        print("Time Out!")
-        running = False
+    screen.blit(player, (player_xpos, player_ypos))
 
     pygame.display.update()
 
