@@ -207,9 +207,10 @@ while running:
                             "to_y": -6,  # movement to y-axis
                             "init_speed_y": ball_speed_y[ball_img_idx + 1]  # initial speed of y
                         })
-
-
-                break
+                    break
+            else:
+                continue
+            break
 
     # remove balls
     if ball_to_remove > -1:
